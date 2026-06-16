@@ -18,6 +18,7 @@ from .core.constants import APP_NAME, APP_VERSION
 from .core.japanese import add_furigana, annotate_text, detect_japanese_level, kana_to_romaji, tokenize
 from .core.kb_builder import EPUBParser, KnowledgeBaseBuilder
 from .core.learning import ExerciseGenerator, ProgressTracker, SRSManager, SRSCard
+from .core.vocab_networks import VOCAB_NETWORKS, get_all_domains, get_domain, get_domain_words, get_related_words, search_vocabulary
 from .core.ollama_client import OllamaClient
 from .core.vector_db import create_vector_db
 
@@ -328,6 +329,76 @@ def create_app():
             return jsonify({"success": False, "error": "Vocabulary required"})
         exercises = EXERCISE_GEN.generate_reading_quiz(vocabulary, learned_kanji)
         return jsonify({"success": True, "exercises": exercises})
+
+    # ── API: Vocabulary Networks ────────────────────────────────────
+
+    @app.route("/api/vocab/domains")
+    def vocab_domains():
+        """List all vocabulary domains."""
+        domains = get_all_domains()
+        return jsonify({"success": True, "domains": domains})
+
+    @app.route("/api/vocab/domain/<domain_id>")
+    def vocab_domain(domain_id):
+        """Get a specific vocabulary domain with all words."""
+        network = get_domain(domain_id)
+        if not network:
+            return jsonify({"success": False, "error": f"Domain '{domain_id}' not found"})
+        return jsonify({"success": True, **network.to_dict()})
+
+    @app.route("/api/vocab/domain/<domain_id>/words")
+    def vocab_domain_words_api(domain_id):
+        """Get words from a domain, optionally filtered by level."""
+        level = request.args.get("level", "")
+        words = get_domain_words(domain_id, level)
+        learned_kanji = set()
+        result = []
+        for w in words:
+            annotated = annotate_text(
+                w.word, show_furigana=CONFIG.show_furigana,
+                show_romaji=CONFIG.romaji_enabled, learned_kanji=learned_kanji,
+            )
+            result.append({
+                **w.to_dict(),
+                "html_ruby": annotated.html_ruby,
+                "html_romaji": annotated.html_romaji,
+                "plain_reading": annotated.plain_reading,
+            })
+        return jsonify({"success": True, "words": result, "domain_id": domain_id, "level": level})
+
+    @app.route("/api/vocab/related/<word>")
+    def vocab_related(word):
+        """Find words related to a given word."""
+        domain_id = request.args.get("domain", "")
+        related = get_related_words(word, domain_id)
+        learned_kanji = set()
+        result = []
+        for w in related:
+            annotated = annotate_text(
+                w.word, show_furigana=CONFIG.show_furigana,
+                show_romaji=CONFIG.romaji_enabled, learned_kanji=learned_kanji,
+            )
+            result.append({**w.to_dict(), "html_ruby": annotated.html_ruby, "html_romaji": annotated.html_romaji})
+        return jsonify({"success": True, "word": word, "related": result})
+
+    @app.route("/api/vocab/search")
+    def vocab_search():
+        """Search vocabulary across all domains."""
+        query = request.args.get("q", "")
+        domain_id = request.args.get("domain", "")
+        level = request.args.get("level", "")
+        if not query:
+            return jsonify({"success": False, "error": "Query parameter 'q' is required"})
+        results = search_vocabulary(query, domain_id, level)
+        learned_kanji = set()
+        for r in results:
+            annotated = annotate_text(
+                r["word"], show_furigana=CONFIG.show_furigana,
+                show_romaji=CONFIG.romaji_enabled, learned_kanji=learned_kanji,
+            )
+            r["html_ruby"] = annotated.html_ruby
+            r["html_romaji"] = annotated.html_romaji
+        return jsonify({"success": True, "results": results, "count": len(results)})
 
     # ── API: Chat ─────────────────────────────────────────────────────
 
