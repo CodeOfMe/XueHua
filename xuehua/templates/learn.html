@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习 - Xuehua</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="logo">学话</h1>
+            <p class="subtitle">Xuehua</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/" class="nav-link"><span class="nav-icon">🏠</span> 首页</a></li>
+            <li><a href="/learn" class="nav-link active" data-page="learn"><span class="nav-icon">📚</span> 学习</a></li>
+            <li><a href="/review" class="nav-link"><span class="nav-icon">🔄</span> 复习</a></li>
+            <li><a href="/chat" class="nav-link"><span class="nav-icon">💬</span> 问答</a></li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        <div class="learn-container">
+            <div class="level-selector">
+                <button class="level-btn active" data-level="N5">N5 入门</button>
+                <button class="level-btn" data-level="N4">N4 初级</button>
+                <button class="level-btn" data-level="N3">N3 中级</button>
+                <button class="level-btn" data-level="N2">N2 中高</button>
+                <button class="level-btn" data-level="N1">N1 高级</button>
+            </div>
+
+            <div class="learn-tabs">
+                <button class="tab-btn active" data-tab="vocabulary">词汇</button>
+                <button class="tab-btn" data-tab="grammar">语法</button>
+                <button class="tab-btn" data-tab="sentences">例句</button>
+                <button class="tab-btn" data-tab="quiz">测验</button>
+            </div>
+
+            <div id="tab-vocabulary" class="tab-content active">
+                <div id="vocab-list" class="vocab-grid">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+
+            <div id="tab-grammar" class="tab-content">
+                <div id="grammar-list">
+                    <div class="loading">请先构建知识库，然后通过问答学习语法</div>
+                </div>
+            </div>
+
+            <div id="tab-sentences" class="tab-content">
+                <div id="sentence-list">
+                    <div class="loading">请先构建知识库</div>
+                </div>
+            </div>
+
+            <div id="tab-quiz" class="tab-content">
+                <div id="quiz-area">
+                    <div class="quiz-start">
+                        <p>选择测验类型：</p>
+                        <button class="btn btn-primary" onclick="startQuiz('multiple_choice')">选择题</button>
+                        <button class="btn btn-primary" onclick="startQuiz('reading')">读音测验</button>
+                        <button class="btn btn-primary" onclick="startQuiz('fill_blank')">填空题</button>
+                    </div>
+                    <div id="quiz-content" class="hidden">
+                        <div id="quiz-question" class="quiz-question"></div>
+                        <div id="quiz-choices" class="quiz-choices"></div>
+                        <div id="quiz-feedback" class="quiz-feedback hidden"></div>
+                        <div id="quiz-progress" class="quiz-progress"></div>
+                        <button id="btn-next-quiz" class="btn btn-primary hidden" onclick="nextQuiz()">下一题</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/learn.js"></script>
+</body>
+</html>

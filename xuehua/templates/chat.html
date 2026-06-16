@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>问答 - Xuehua</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="logo">学话</h1>
+            <p class="subtitle">Xuehua</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/" class="nav-link"><span class="nav-icon">🏠</span> 首页</a></li>
+            <li><a href="/learn" class="nav-link"><span class="nav-icon">📚</span> 学习</a></li>
+            <li><a href="/review" class="nav-link"><span class="nav-icon">🔄</span> 复习</a></li>
+            <li><a href="/chat" class="nav-link active" data-page="chat"><span class="nav-icon">💬</span> 问答</a></li>
+        </ul>
+        <div class="sidebar-section">
+            <h3>知识库</h3>
+            <div id="kb-collections" class="kb-collections">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="chat-container">
+            <div id="chat-messages" class="chat-messages">
+                <div class="chat-welcome">
+                    <h2>🤖 Xuehua 学习助手</h2>
+                    <p>基于你的教材知识库和本地 AI 模型，回答语言学习中的疑问。</p>
+                    <p>支持的功能：</p>
+                    <ul>
+                        <li>📖 语法解释和例句生成</li>
+                        <li>🔤 汉字读音查询（自动添加假名注音）</li>
+                        <li>📝 造句练习和纠错</li>
+                        <li>🎯 针对你正在学习的教材内容答疑</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="chat-options">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="chat-use-kb" checked> 使用知识库
+                    </label>
+                </div>
+                <div class="chat-input-row">
+                    <textarea id="chat-input" class="chat-input" placeholder="输入你的问题..." rows="1"></textarea>
+                    <button id="btn-send" class="btn btn-primary" onclick="sendMessage()">发送</button>
+                    <button id="btn-stop" class="btn btn-danger hidden" onclick="stopGeneration()">停止</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/chat.js"></script>
+</body>
+</html>

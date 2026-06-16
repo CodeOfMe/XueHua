@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xuehua - 语言学习助手</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="logo">学话</h1>
+            <p class="subtitle">Xuehua 语言学习助手</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/" class="nav-link active" data-page="home"><span class="nav-icon">🏠</span> 首页</a></li>
+            <li><a href="/learn" class="nav-link" data-page="learn"><span class="nav-icon">📚</span> 学习</a></li>
+            <li><a href="/review" class="nav-link" data-page="review"><span class="nav-icon">🔄</span> 复习</a></li>
+            <li><a href="/chat" class="nav-link" data-page="chat"><span class="nav-icon">💬</span> 问答</a></li>
+        </ul>
+        <div class="sidebar-section">
+            <h3>知识库</h3>
+            <button id="btn-build-kb" class="btn btn-primary btn-block">构建知识库</button>
+            <div id="kb-status" class="status-text"></div>
+        </div>
+        <div class="sidebar-section">
+            <h3>学习进度</h3>
+            <div id="progress-summary" class="progress-info">
+                <div class="progress-item">
+                    <span class="progress-label">等级</span>
+                    <span id="progress-level" class="progress-value">N5</span>
+                </div>
+                <div class="progress-item">
+                    <span class="progress-label">词汇</span>
+                    <span id="progress-vocab" class="progress-value">0</span>
+                </div>
+                <div class="progress-item">
+                    <span class="progress-label">汉字</span>
+                    <span id="progress-kanji" class="progress-value">0</span>
+                </div>
+                <div class="progress-item">
+                    <span class="progress-label">待复习</span>
+                    <span id="progress-due" class="progress-value">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-section">
+            <h3>设置</h3>
+            <label class="toggle-label">
+                <input type="checkbox" id="toggle-furigana" checked> 假名注音
+            </label>
+            <label class="toggle-label">
+                <input type="checkbox" id="toggle-romaji"> 罗马音
+            </label>
+            <div class="form-group">
+                <label>当前级别</label>
+                <select id="select-level" class="form-select">
+                    <option value="N5">N5 入门</option>
+                    <option value="N4">N4 初级</option>
+                    <option value="N3">N3 中级</option>
+                    <option value="N2">N2 中高级</option>
+                    <option value="N1">N1 高级</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>对话模型</label>
+                <select id="select-chat-model" class="form-select">
+                    <option value="">加载中...</option>
+                </select>
+            </div>
+            <button id="btn-settings" class="btn btn-secondary btn-block">高级设置</button>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div id="page-home" class="page active">
+            <div class="welcome">
+                <h2>ようこそ！欢迎使用 Xuehua</h2>
+                <p>基于 EPUB 教材知识库和 AI 大模型的语言学习助手</p>
+                <div class="feature-grid">
+                    <div class="feature-card" onclick="location.href='/learn'">
+                        <div class="feature-icon">📖</div>
+                        <h3>循序渐进</h3>
+                        <p>按照 JLPT 等级从 N5 到 N1 逐步学习，每个知识点都配有假名注音和例句</p>
+                    </div>
+                    <div class="feature-card" onclick="location.href='/review'">
+                        <div class="feature-icon">🔄</div>
+                        <h3>间隔复习</h3>
+                        <p>基于 SM-2 算法的智能复习系统，自动安排复习计划</p>
+                    </div>
+                    <div class="feature-card" onclick="location.href='/chat'">
+                        <div class="feature-icon">🤖</div>
+                        <h3>AI 答疑</h3>
+                        <p>结合知识库和本地大模型，获得针对教材内容的精准解答</p>
+                    </div>
+                    <div class="feature-card" onclick="document.getElementById('btn-build-kb').click()">
+                        <div class="feature-icon">📚</div>
+                        <h3>知识库</h3>
+                        <p>导入 EPUB 教材，构建向量知识库，让 AI 回答有据可依</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <h2>高级设置</h2>
+            <div class="form-group">
+                <label>Ollama 地址</label>
+                <input type="text" id="settings-ollama-url" class="form-input" value="http://localhost:11434">
+            </div>
+            <div class="form-group">
+                <label>嵌入模型</label>
+                <select id="settings-embed-model" class="form-select">
+                    <option value="">加载中...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>EPUB 目录</label>
+                <input type="text" id="settings-epub-dir" class="form-input" placeholder="/path/to/epub/files">
+            </div>
+            <div class="form-group">
+                <label>分块大小</label>
+                <input type="number" id="settings-chunk-size" class="form-input" value="800">
+            </div>
+            <div class="form-group">
+                <label>分块重叠</label>
+                <input type="number" id="settings-chunk-overlap" class="form-input" value="150">
+            </div>
+            <div class="form-group">
+                <label>RAG 距离阈值</label>
+                <input type="number" id="settings-rag-threshold" class="form-input" value="1.5" step="0.1">
+            </div>
+            <div class="modal-actions">
+                <button id="btn-save-settings" class="btn btn-primary">保存</button>
+                <button id="btn-close-settings" class="btn btn-secondary">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="build-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <h2>构建知识库</h2>
+            <p>从 EPUB 文件构建向量知识库，用于 RAG 检索增强生成。</p>
+            <div class="form-group">
+                <label>EPUB 目录</label>
+                <input type="text" id="build-epub-dir" class="form-input" placeholder="留空使用默认日语目录">
+            </div>
+            <div class="form-group">
+                <label>集合名称</label>
+                <input type="text" id="build-collection" class="form-input" placeholder="留空使用目录名">
+            </div>
+            <div id="build-progress" class="progress-bar-container hidden">
+                <div class="progress-bar" id="build-progress-bar"></div>
+                <div class="progress-text" id="build-progress-text">构建中...</div>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-start-build" class="btn btn-primary">开始构建</button>
+                <button id="btn-close-build" class="btn btn-secondary">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

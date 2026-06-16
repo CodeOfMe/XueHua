@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>复习 - Xuehua</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="logo">学话</h1>
+            <p class="subtitle">Xuehua</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/" class="nav-link"><span class="nav-icon">🏠</span> 首页</a></li>
+            <li><a href="/learn" class="nav-link"><span class="nav-icon">📚</span> 学习</a></li>
+            <li><a href="/review" class="nav-link active" data-page="review"><span class="nav-icon">🔄</span> 复习</a></li>
+            <li><a href="/chat" class="nav-link"><span class="nav-icon">💬</span> 问答</a></li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        <div class="review-container">
+            <div class="review-header">
+                <h2>间隔复习 (SRS)</h2>
+                <div class="review-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-due">0</div>
+                        <div class="stat-label">待复习</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-learned">0</div>
+                        <div class="stat-label">已学习</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-total">0</div>
+                        <div class="stat-label">总卡片</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="review-start" class="review-start">
+                <button id="btn-start-review" class="btn btn-primary btn-lg" onclick="startReview()">
+                    开始复习
+                </button>
+                <p class="review-hint">基于 SM-2 算法自动安排复习计划</p>
+            </div>
+
+            <div id="review-card" class="review-card hidden">
+                <div id="card-front" class="card-face card-front">
+                    <div id="card-word" class="card-word"></div>
+                    <div id="card-hint" class="card-hint">点击查看答案</div>
+                </div>
+                <div id="card-back" class="card-face card-back hidden">
+                    <div id="card-reading" class="card-reading"></div>
+                    <div id="card-meaning" class="card-meaning"></div>
+                    <div id="card-example" class="card-example"></div>
+                </div>
+
+                <div id="card-rating" class="card-rating hidden">
+                    <p>你的记忆程度：</p>
+                    <button class="btn btn-rating btn-again" onclick="rateCard(0)">再来 (0)</button>
+                    <button class="btn btn-rating btn-hard" onclick="rateCard(2)">困难 (2)</button>
+                    <button class="btn btn-rating btn-good" onclick="rateCard(4)">良好 (4)</button>
+                    <button class="btn btn-rating btn-easy" onclick="rateCard(5)">简单 (5)</button>
+                </div>
+
+                <div id="card-progress" class="card-progress-bar">
+                    <div id="card-progress-fill" class="progress-fill"></div>
+                    <span id="card-progress-text">0/0</span>
+                </div>
+            </div>
+
+            <div id="review-complete" class="review-complete hidden">
+                <h3>🎉 复习完成！</h3>
+                <div id="review-summary"></div>
+                <button class="btn btn-primary" onclick="location.reload()">返回</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/review.js"></script>
+</body>
+</html>
