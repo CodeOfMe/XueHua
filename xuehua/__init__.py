@@ -3,7 +3,7 @@
 import warnings as _warnings
 _warnings.filterwarnings("ignore")
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from .api import ToolResult, chat, build_knowledge_base
 from .core.config import CONFIG, DATA_DIR, XUEHUA_DIR
