@@ -10,14 +10,27 @@
     <nav class="sidebar">
         <div class="sidebar-header">
             <h1 class="logo">学话</h1>
-            <p class="subtitle">Xuehua</p>
+            <p class="subtitle" data-i18n="app.subtitle">Xuehua 语言学习助手</p>
         </div>
         <ul class="nav-links">
-            <li><a href="/" class="nav-link"><span class="nav-icon">🏠</span> 首页</a></li>
-            <li><a href="/learn" class="nav-link active" data-page="learn"><span class="nav-icon">📚</span> 学习</a></li>
-            <li><a href="/review" class="nav-link"><span class="nav-icon">🔄</span> 复习</a></li>
-            <li><a href="/chat" class="nav-link"><span class="nav-icon">💬</span> 问答</a></li>
+            <li><a href="/" class="nav-link"><span class="nav-icon">🏠</span> <span data-i18n="nav.home">首页</span></a></li>
+            <li><a href="/learn" class="nav-link active" data-page="learn"><span class="nav-icon">📚</span> <span data-i18n="nav.learn">学习</span></a></li>
+            <li><a href="/review" class="nav-link"><span class="nav-icon">🔄</span> <span data-i18n="nav.review">复习</span></a></li>
+            <li><a href="/chat" class="nav-link"><span class="nav-icon">💬</span> <span data-i18n="nav.chat">问答</span></a></li>
+            <li><a href="/photo" class="nav-link"><span class="nav-icon">📷</span> <span data-i18n="nav.photo">拍照学</span></a></li>
         </ul>
+        <div class="sidebar-section">
+            <h3 data-i18n="sidebar.language">学习语言</h3>
+            <select id="select-language" class="form-select"></select>
+        </div>
+        <div class="sidebar-section">
+            <h3 data-i18n="sidebar.ui_language">界面语言</h3>
+            <select id="select-ui-language" class="form-select"></select>
+        </div>
+        <div class="sidebar-section">
+            <h3 data-i18n="sidebar.level">当前级别</h3>
+            <select id="select-level" class="form-select"></select>
+        </div>
     </nav>
 
     <main class="content">
@@ -32,22 +45,22 @@
             </div>
 
             <div class="learn-tabs">
-                <button class="tab-btn active" data-tab="domains"><span class="nav-icon">🌐</span> 词汇网络</button>
-                <button class="tab-btn" data-tab="quiz"><span class="nav-icon">✏️</span> 测验</button>
+                <button class="tab-btn active" data-tab="domains"><span class="nav-icon">🌐</span> <span data-i18n="learn.tab_vocab">词汇网络</span></button>
+                <button class="tab-btn" data-tab="quiz"><span class="nav-icon">✏️</span> <span data-i18n="learn.tab_quiz">测验</span></button>
             </div>
 
             <div id="tab-domains" class="tab-content active">
                 <div id="vocab-list" class="vocab-grid">
-                    <div class="loading">加载中...</div>
+                    <div class="loading" data-i18n="kb.browse_loading">加载中...</div>
                 </div>
             </div>
 
             <div id="tab-quiz" class="tab-content">
                 <div id="quiz-area">
                     <div class="quiz-start">
-                        <p>选择测验类型：</p>
-                        <button class="btn btn-primary" onclick="startQuiz('multiple_choice')">选择题</button>
-                        <button class="btn btn-primary" onclick="startQuiz('reading')">读音测验</button>
+                        <p data-i18n="learn.quiz_choose">选择测验类型：</p>
+                        <button class="btn btn-primary" onclick="startQuiz('multiple_choice')" data-i18n="learn.quiz_mc">选择题</button>
+                        <button class="btn btn-primary" onclick="startQuiz('reading')" data-i18n="learn.quiz_reading">读音测验</button>
                     </div>
                     <div id="quiz-content" class="hidden">
                         <div id="quiz-question" class="quiz-question"></div>
@@ -61,6 +74,7 @@
         </div>
     </main>
 
+    <script src="/static/js/i18n.js"></script>
     <script src="/static/js/learn.js"></script>
 </body>
 </html>

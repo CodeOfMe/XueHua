@@ -10,18 +10,27 @@
     <nav class="sidebar">
         <div class="sidebar-header">
             <h1 class="logo">学话</h1>
-            <p class="subtitle">Xuehua</p>
+            <p class="subtitle" data-i18n="app.subtitle">Xuehua 语言学习助手</p>
         </div>
         <ul class="nav-links">
-            <li><a href="/" class="nav-link"><span class="nav-icon">🏠</span> 首页</a></li>
-            <li><a href="/learn" class="nav-link"><span class="nav-icon">📚</span> 学习</a></li>
-            <li><a href="/review" class="nav-link"><span class="nav-icon">🔄</span> 复习</a></li>
-            <li><a href="/chat" class="nav-link active" data-page="chat"><span class="nav-icon">💬</span> 问答</a></li>
+            <li><a href="/" class="nav-link"><span class="nav-icon">🏠</span> <span data-i18n="nav.home">首页</span></a></li>
+            <li><a href="/learn" class="nav-link"><span class="nav-icon">📚</span> <span data-i18n="nav.learn">学习</span></a></li>
+            <li><a href="/review" class="nav-link"><span class="nav-icon">🔄</span> <span data-i18n="nav.review">复习</span></a></li>
+            <li><a href="/chat" class="nav-link active" data-page="chat"><span class="nav-icon">💬</span> <span data-i18n="nav.chat">问答</span></a></li>
+            <li><a href="/photo" class="nav-link"><span class="nav-icon">📷</span> <span data-i18n="nav.photo">拍照学</span></a></li>
         </ul>
         <div class="sidebar-section">
-            <h3>知识库</h3>
+            <h3 data-i18n="sidebar.language">学习语言</h3>
+            <select id="select-language" class="form-select"></select>
+        </div>
+        <div class="sidebar-section">
+            <h3 data-i18n="sidebar.ui_language">界面语言</h3>
+            <select id="select-ui-language" class="form-select"></select>
+        </div>
+        <div class="sidebar-section">
+            <h3 data-i18n="sidebar.knowledge_base">知识库</h3>
             <div id="kb-collections" class="kb-collections">
-                <div class="loading">加载中...</div>
+                <div class="loading" data-i18n="kb.browse_loading">加载中...</div>
             </div>
         </div>
     </nav>
@@ -30,14 +39,14 @@
         <div class="chat-container">
             <div id="chat-messages" class="chat-messages">
                 <div class="chat-welcome">
-                    <h2>🤖 Xuehua 学习助手</h2>
-                    <p>基于你的教材知识库和本地 AI 模型，回答语言学习中的疑问。</p>
-                    <p>支持的功能：</p>
+                    <h2 data-i18n="chat.welcome_title">🤖 Xuehua 学习助手</h2>
+                    <p data-i18n="chat.welcome_desc">基于你的教材知识库和本地 AI 模型，回答语言学习中的疑问。</p>
+                    <p data-i18n="chat.welcome_features">支持的功能：</p>
                     <ul>
-                        <li>📖 语法解释和例句生成</li>
-                        <li>🔤 汉字读音查询（自动添加假名注音）</li>
-                        <li>📝 造句练习和纠错</li>
-                        <li>🎯 针对你正在学习的教材内容答疑</li>
+                        <li data-i18n="chat.f1">📖 语法解释和例句生成</li>
+                        <li data-i18n="chat.f2">🔤 汉字读音查询（自动添加假名注音）</li>
+                        <li data-i18n="chat.f3">📝 造句练习和纠错</li>
+                        <li data-i18n="chat.f4">🎯 针对你正在学习的教材内容答疑</li>
                     </ul>
                 </div>
             </div>
@@ -45,18 +54,19 @@
             <div class="chat-input-area">
                 <div class="chat-options">
                     <label class="toggle-label">
-                        <input type="checkbox" id="chat-use-kb" checked> 使用知识库
+                        <input type="checkbox" id="chat-use-kb" checked> <span data-i18n="chat.use_kb">使用知识库</span>
                     </label>
                 </div>
                 <div class="chat-input-row">
                     <textarea id="chat-input" class="chat-input" placeholder="输入你的问题..." rows="1"></textarea>
-                    <button id="btn-send" class="btn btn-primary" onclick="sendMessage()">发送</button>
-                    <button id="btn-stop" class="btn btn-danger hidden" onclick="stopGeneration()">停止</button>
+                    <button id="btn-send" class="btn btn-primary" onclick="sendMessage()" data-i18n="chat.send">发送</button>
+                    <button id="btn-stop" class="btn btn-danger hidden" onclick="stopGeneration()" data-i18n="chat.stop">停止</button>
                 </div>
             </div>
         </div>
     </main>
 
+    <script src="/static/js/i18n.js"></script>
     <script src="/static/js/chat.js"></script>
 </body>
 </html>

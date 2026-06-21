@@ -1,5 +1,8 @@
 """Xuehua - Language learning assistant powered by EPUB knowledge base and Ollama LLM."""
 
+import warnings as _warnings
+_warnings.filterwarnings("ignore")
+
 __version__ = "0.1.0"
 
 from .api import ToolResult, chat, build_knowledge_base

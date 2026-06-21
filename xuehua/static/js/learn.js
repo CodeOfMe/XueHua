@@ -1,5 +1,5 @@
 // Xuehua - Learning Page JavaScript
-const API = '';
+var API = API || '';
 
 class LearnApp {
     constructor() {

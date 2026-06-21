@@ -1,5 +1,5 @@
 // Xuehua - Chat Page JavaScript
-const API = '';
+var API = API || '';
 
 class ChatApp {
     constructor() {
@@ -93,6 +93,7 @@ class ChatApp {
 
         const modelSelect = document.getElementById('chat-model-select');
         const model = modelSelect ? modelSelect.value : '';
+        const language = (window.XuehuaI18n && window.XuehuaI18n.studyLanguage) || '';
 
         this.isStreaming = true;
         this.showStopButton();
@@ -109,6 +110,7 @@ class ChatApp {
                     model: model || undefined,
                     use_kb: useKB,
                     collections: collections.length > 0 ? collections : undefined,
+                    language,
                 }),
             });
 

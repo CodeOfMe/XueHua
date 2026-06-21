@@ -92,7 +92,6 @@ class OllamaClient:
         ]
 
     def embed(self, text: str, model: str) -> List[float]:
-        text = text[:500] if len(text) > 500 else text
         r = self._session.post(
             f"{self.api_url}/api/embeddings",
             json={"model": model, "prompt": text},
@@ -125,6 +124,59 @@ class OllamaClient:
         except Exception as e:
             logger.error("[Ollama] chat_complete error: %s", e)
             return ""
+
+    def chat_vision(
+        self,
+        prompt: str,
+        image_data: str,
+        model: str = "",
+        temperature: float = 0.3,
+        num_ctx: int = None,
+    ) -> str:
+        if not model:
+            models = self.get_chat_models()
+            model = models[0] if models else ""
+            if not model:
+                return ""
+        ctx_len = num_ctx or self._context_length
+        messages = [
+            {
+                "role": "user",
+                "content": prompt,
+                "images": [image_data],
+            }
+        ]
+        payload = {
+            "model": model,
+            "messages": messages,
+            "stream": False,
+            "options": {"temperature": temperature, "num_ctx": ctx_len},
+        }
+        try:
+            r = self._session.post(
+                f"{self.api_url}/api/chat", json=payload, timeout=300
+            )
+            r.raise_for_status()
+            data = r.json()
+            return data.get("message", {}).get("content", "")
+        except Exception as e:
+            logger.error("[Ollama] chat_vision error: %s", e)
+            return ""
+
+    def get_vision_models(self) -> List[str]:
+        models = self.get_models()
+        vision_keywords = [
+            "vision", "vl", "llava", "bakllava", "minicpm-v",
+            "qwen2-vl", "qwen3-vl", "llama3.2-vision", "pixtral",
+            "gemma3", "qwen2.5", "qwen3", "qwen3.5",
+        ]
+        result = []
+        for m in models:
+            ml = m.lower()
+            if any(kw in ml for kw in vision_keywords):
+                if not any(p in ml for p in self.EMBEDDING_PATTERNS + ["reranker", "embed"]):
+                    result.append(m)
+        return result
 
     def chat_stream(
         self,

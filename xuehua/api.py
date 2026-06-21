@@ -47,7 +47,7 @@ def chat(
     """
     load_config()
     ollama = OllamaClient(CONFIG.ollama_url)
-    chroma = create_vector_db(str(CONFIG.get("chroma_dir", str(XUEHUA_DIR / "chroma"))))
+    chroma = create_vector_db(str(XUEHUA_DIR / "chroma"))
     kb = KnowledgeBaseBuilder(chroma, ollama, CONFIG)
 
     model_name = model or CONFIG.chat_model

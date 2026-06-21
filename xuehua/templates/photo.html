@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拍照学 - 学话</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/photo.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="logo">学话</h1>
+            <p class="subtitle" data-i18n="app.subtitle">Xuehua 语言学习助手</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/" class="nav-link"><span class="nav-icon">🏠</span> <span data-i18n="nav.home">首页</span></a></li>
+            <li><a href="/learn" class="nav-link"><span class="nav-icon">📚</span> <span data-i18n="nav.learn">学习</span></a></li>
+            <li><a href="/review" class="nav-link"><span class="nav-icon">🔄</span> <span data-i18n="nav.review">复习</span></a></li>
+            <li><a href="/chat" class="nav-link"><span class="nav-icon">💬</span> <span data-i18n="nav.chat">问答</span></a></li>
+            <li><a href="/photo" class="nav-link active"><span class="nav-icon">📷</span> <span data-i18n="nav.photo">拍照学</span></a></li>
+        </ul>
+        <div class="sidebar-section">
+            <h3 data-i18n="sidebar.language">学习语言</h3>
+            <select id="select-language" class="form-select"></select>
+        </div>
+        <div class="sidebar-section">
+            <h3 data-i18n="sidebar.ui_language">界面语言</h3>
+            <select id="select-ui-language" class="form-select"></select>
+        </div>
+        <div class="sidebar-section">
+            <h3 data-i18n="photo.model_status">模型状态</h3>
+            <div id="model-status" class="status-text">检测中...</div>
+        </div>
+    </nav>
+
+    <main class="content">
+        <div class="photo-container">
+            <div class="photo-header">
+                <h2 data-i18n="photo.title">📷 拍照学汉字</h2>
+                <p class="photo-subtitle" data-i18n="photo.subtitle">拍一张照片，认识身边的世界</p>
+            </div>
+
+            <div class="photo-upload-area" id="upload-area">
+                <div class="upload-prompt" id="upload-prompt">
+                    <div class="upload-icon">📸</div>
+                    <p data-i18n="photo.drop">点击拍照或拖拽图片到这里</p>
+                    <p class="upload-hint" data-i18n="photo.formats">支持 JPG、PNG、WebP 格式</p>
+                </div>
+                <img id="preview-image" class="preview-image hidden" alt="预览">
+                <input type="file" id="photo-input" accept="image/jpeg,image/png,image/webp" class="hidden">
+                <div id="image-actions" class="image-actions hidden">
+                    <button class="btn btn-danger btn-sm" onclick="clearImage()" data-i18n="photo.clear">✕ 清除</button>
+                    <button class="btn btn-secondary btn-sm" onclick="reselectImage()" data-i18n="photo.reselect">🔄 重选</button>
+                </div>
+            </div>
+
+            <div class="photo-controls">
+                <div class="control-row">
+                    <div class="form-group">
+                        <label data-i18n="photo.vision_model">视觉模型</label>
+                        <select id="vision-model" class="form-select">
+                            <option value="">自动选择</option>
+                        </select>
+                    </div>
+                    <button id="btn-identify" class="btn btn-primary btn-lg" onclick="identifyImage()" disabled data-i18n="photo.identify">
+                        🔍 识别图中物品
+                    </button>
+                </div>
+            </div>
+
+            <div id="identify-result" class="identify-result hidden">
+                <h3 data-i18n="photo.result">🎯 识别结果</h3>
+                <div id="scene-desc" class="scene-desc hidden">
+                    <p id="scene-text"></p>
+                </div>
+                <div id="items-grid" class="items-grid"></div>
+                <button id="btn-generate-lesson" class="btn btn-primary btn-lg" onclick="generateLesson()" style="margin-top: 16px;" data-i18n="photo.lesson">
+                    📖 生成学习课程
+                </button>
+            </div>
+
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p id="loading-text" data-i18n="photo.loading">正在识别中...</p>
+            </div>
+
+            <div id="lesson-result" class="lesson-result hidden">
+                <h2 id="lesson-title"></h2>
+                <div id="lesson-chant" class="lesson-chant hidden"></div>
+
+                <div id="lesson-words" class="lesson-words"></div>
+
+                <div id="lesson-story" class="lesson-story hidden"></div>
+
+                <div id="lesson-questions" class="lesson-questions hidden">
+                    <h4>🤔 动动脑筋</h4>
+                    <ul id="questions-list"></ul>
+                </div>
+            </div>
+
+            <div id="error-message" class="error-message hidden"></div>
+        </div>
+    </main>
+
+    <div id="word-detail-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeWordDetail()"></div>
+        <div class="modal-content word-detail-modal">
+            <h2 id="detail-word"></h2>
+            <div id="detail-pinyin" class="detail-pinyin"></div>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">部首</span>
+                    <span id="detail-radical" class="detail-value"></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">笔画</span>
+                    <span id="detail-strokes" class="detail-value"></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">英文</span>
+                    <span id="detail-english" class="detail-value"></span>
+                </div>
+            </div>
+            <p id="detail-explanation" class="detail-explanation"></p>
+            <div class="detail-example">
+                <p id="detail-example"></p>
+                <p id="detail-example-pinyin" class="detail-pinyin-small"></p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeWordDetail()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/i18n.js"></script>
+    <script src="/static/js/photo.js"></script>
+</body>
+</html>

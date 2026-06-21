@@ -1,5 +1,5 @@
 // Xuehua - Main Application JavaScript
-const API = '';
+var API = API || '';
 
 class XuehuaApp {
     constructor() {
@@ -147,6 +147,10 @@ class XuehuaApp {
         const btnCloseSettings = document.getElementById('btn-close-settings');
         const btnStartBuild = document.getElementById('btn-start-build');
         const btnCloseBuild = document.getElementById('btn-close-build');
+        const btnBrowseDir = document.getElementById('btn-browse-dir');
+        const btnDirUp = document.getElementById('btn-dir-up');
+        const btnDirSelect = document.getElementById('btn-dir-select');
+        const btnDirCancel = document.getElementById('btn-dir-cancel');
 
         if (toggleFurigana) {
             toggleFurigana.addEventListener('change', () => {
@@ -165,12 +169,15 @@ class XuehuaApp {
         if (selectLevel) {
             selectLevel.addEventListener('change', () => {
                 this.settings.currentLevel = selectLevel.value;
-                this.saveSettings();
-                fetch(`${API}/api/learning/progress`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ current_level: selectLevel.value }),
-                });
+                // i18n.js handles saving + API call for level changes
+                if (!window.XuehuaI18n) {
+                    this.saveSettings();
+                    fetch(`${API}/api/learning/progress`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ current_level: selectLevel.value }),
+                    });
+                }
             });
         }
 
@@ -183,6 +190,10 @@ class XuehuaApp {
 
         if (btnBuildKB) {
             btnBuildKB.addEventListener('click', () => {
+                const epubInput = document.getElementById('build-epub-dir');
+                if (epubInput && !epubInput.value && this.settings.epub_dir) {
+                    epubInput.value = this.settings.epub_dir;
+                }
                 document.getElementById('build-modal').classList.remove('hidden');
             });
         }
@@ -218,6 +229,32 @@ class XuehuaApp {
         if (btnCloseBuild) {
             btnCloseBuild.addEventListener('click', () => {
                 document.getElementById('build-modal').classList.add('hidden');
+                document.getElementById('dir-browser').classList.add('hidden');
+            });
+        }
+
+        if (btnBrowseDir) {
+            btnBrowseDir.addEventListener('click', () => this.openDirBrowser());
+        }
+        if (btnDirUp) {
+            btnDirUp.addEventListener('click', () => {
+                const cur = document.getElementById('dir-current').dataset.path || '';
+                const parent = document.getElementById('dir-current').dataset.parent || '';
+                if (parent) this.browseDirectory(parent);
+            });
+        }
+        if (btnDirSelect) {
+            btnDirSelect.addEventListener('click', () => {
+                const cur = document.getElementById('dir-current').dataset.path || '';
+                if (cur) {
+                    document.getElementById('build-epub-dir').value = cur;
+                }
+                document.getElementById('dir-browser').classList.add('hidden');
+            });
+        }
+        if (btnDirCancel) {
+            btnDirCancel.addEventListener('click', () => {
+                document.getElementById('dir-browser').classList.add('hidden');
             });
         }
 
@@ -251,6 +288,89 @@ class XuehuaApp {
         } catch (e) {
             console.error('Failed to save settings:', e);
         }
+    }
+
+    openDirBrowser() {
+        const browser = document.getElementById('dir-browser');
+        browser.classList.remove('hidden');
+        const currentInput = document.getElementById('build-epub-dir')?.value || '';
+        const startPath = currentInput || this.settings.epub_dir || '';
+        this.browseDirectory(startPath);
+    }
+
+    async browseDirectory(path = '') {
+        const listEl = document.getElementById('dir-list');
+        const currentEl = document.getElementById('dir-current');
+        const countEl = document.getElementById('dir-epub-count');
+        const upBtn = document.getElementById('btn-dir-up');
+        const selectBtn = document.getElementById('btn-dir-select');
+
+        listEl.innerHTML = '<div class="dir-item">加载中...</div>';
+        currentEl.textContent = path || '主目录';
+        countEl.textContent = '';
+
+        try {
+            const url = `${API}/api/kb/browse?path=${encodeURIComponent(path)}`;
+            const resp = await fetch(url);
+            const data = await resp.json();
+
+            if (!data.success) {
+                listEl.innerHTML = `<div class="dir-item" style="color:var(--danger)">${data.error || '错误'}</div>`;
+                upBtn.disabled = !data.parent;
+                selectBtn.disabled = true;
+                return;
+            }
+
+            currentEl.textContent = data.current_path;
+            currentEl.dataset.path = data.current_path;
+            currentEl.dataset.parent = data.parent || '';
+
+            const quickEl = document.getElementById('dir-quick');
+            if (quickEl) {
+                quickEl.innerHTML = '';
+                (data.quick || []).forEach(q => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'dir-quick-btn';
+                    btn.textContent = q.label;
+                    btn.title = q.path;
+                    btn.addEventListener('click', () => this.browseDirectory(q.path));
+                    quickEl.appendChild(btn);
+                });
+            }
+
+            upBtn.disabled = !data.parent;
+            selectBtn.disabled = false;
+
+            let html = '';
+            if (!data.dirs.length && !data.epubs.length) {
+                html = '<div class="dir-item" style="opacity:0.6">此目录为空</div>';
+            } else {
+                data.dirs.forEach(name => {
+                    html += `<div class="dir-item" data-name="${this.escapeHtml(name)}"><span class="icon">📁</span><span>${this.escapeHtml(name)}</span></div>`;
+                });
+                data.epubs.forEach(name => {
+                    html += `<div class="dir-item"><span class="icon">📘</span><span>${this.escapeHtml(name)}</span><span class="epub-badge">EPUB</span></div>`;
+                });
+            }
+            listEl.innerHTML = html;
+
+            countEl.textContent = data.has_epubs ? `发现 ${data.epubs.length} 个 EPUB 文件` : '';
+
+            listEl.querySelectorAll('.dir-item[data-name]').forEach(item => {
+                item.addEventListener('click', () => {
+                    const name = item.dataset.name;
+                    const newPath = (data.current_path.replace(/\/$/, '')) + '/' + name;
+                    this.browseDirectory(newPath);
+                });
+            });
+        } catch (e) {
+            listEl.innerHTML = `<div class="dir-item" style="color:var(--danger)">网络错误：${e.message}</div>`;
+        }
+    }
+
+    escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
 
     async buildKnowledgeBase() {

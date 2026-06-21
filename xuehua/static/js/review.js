@@ -1,5 +1,5 @@
 // Xuehua - Review (SRS) Page JavaScript
-const API = '';
+var API = API || '';
 
 class ReviewApp {
     constructor() {

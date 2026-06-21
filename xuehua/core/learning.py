@@ -11,14 +11,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from .config import Config, PROGRESS_DIR
-from .japanese import (
-    Token,
-    add_furigana,
-    annotate_text,
-    detect_japanese_level,
-    kana_to_romaji,
-    tokenize,
-)
+from .annotation import annotate_text as _annotate, detect_level as _detect_level
 
 PROGRESS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -290,16 +283,21 @@ class ExerciseGenerator:
             correct_index = choices.index(item["meaning"])
 
             learned_kanji = self.progress.get_learned_kanji_set()
-            annotated = annotate_text(
-                item["word"],
+            annotated = _annotate(
+                item["word"], language=self.config.language,
                 show_furigana=self.config.show_furigana,
                 show_romaji=self.config.romaji_enabled,
-                learned_kanji=learned_kanji,
+                learned_chars=learned_kanji,
             )
 
+            ui_lang = getattr(self.config, "ui_language", "zh")
+            if ui_lang == "zh":
+                question = f"「{annotated.html_ruby}」的读音是？" if not self.config.romaji_enabled else f"「{annotated.html_ruby}」是什么意思？"
+            else:
+                question = f"What does 「{annotated.html_ruby}」mean?"
             exercises.append({
                 "type": "multiple_choice",
-                "question": f"「{annotated.html_ruby}」的读音是？" if not self.config.romaji_enabled else f"What does 「{annotated.html_ruby}」mean?",
+                "question": question,
                 "choices": choices,
                 "correct_index": correct_index,
                 "word": item["word"],
@@ -323,11 +321,11 @@ class ExerciseGenerator:
         exercises = []
         for sent in sentences:
             jp = sent["japanese"]
-            annotated = annotate_text(
-                jp,
+            annotated = _annotate(
+                jp, language=self.config.language,
                 show_furigana=True,
                 show_romaji=self.config.romaji_enabled,
-                learned_kanji=learned_kanji,
+                learned_chars=learned_kanji,
             )
 
             exercises.append({
@@ -354,11 +352,11 @@ class ExerciseGenerator:
 
         exercises = []
         for item in vocabulary:
-            annotated = annotate_text(
-                item["word"],
+            annotated = _annotate(
+                item["word"], language=self.config.language,
                 show_furigana=False,
                 show_romaji=False,
-                learned_kanji=learned_kanji,
+                learned_chars=learned_kanji,
             )
 
             choices = [item["reading"]]
@@ -372,9 +370,11 @@ class ExerciseGenerator:
             random.shuffle(choices)
             correct_index = choices.index(item["reading"])
 
+            ui_lang = getattr(self.config, "ui_language", "zh")
+            question = f"「{annotated.html_ruby}」的正确读音是？" if ui_lang == "zh" else f"What is the correct reading of 「{annotated.html_ruby}」?"
             exercises.append({
                 "type": "reading_quiz",
-                "question": f"「{annotated.html_ruby}」的正确读音是？",
+                "question": question,
                 "choices": choices,
                 "correct_index": correct_index,
                 "word": item["word"],

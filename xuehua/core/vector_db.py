@@ -87,7 +87,6 @@ class ChromaDBBackend(VectorDBBase):
         try:
             import chromadb
 
-            backup_dir = Path(self.persist_dir + "_backup")
             try:
                 self.client = chromadb.PersistentClient(path=self.persist_dir)
                 self.client.list_collections()

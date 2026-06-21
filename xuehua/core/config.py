@@ -40,8 +40,6 @@ EPUB_DIR = XUEHUA_DIR / "epub"
 PROGRESS_DIR = XUEHUA_DIR / "progress"
 CONFIG_FILE = XUEHUA_DIR / "xuehua_config.json"
 
-DEFAULT_LANG_DIR = Path(__file__).resolve().parent.parent.parent.parent / "日语"
-
 
 @dataclass
 class Config:
@@ -54,6 +52,11 @@ class Config:
     chunk_overlap: int = DEFAULT_CHUNK_OVERLAP
     rag_distance_threshold: float = DEFAULT_RAG_DISTANCE_THRESHOLD
     language: str = DEFAULT_LANGUAGE
+    """Study language code (ISO 639-1): ja, zh, en, ko, fr, de, es, pt, it, ru."""
+
+    ui_language: str = "zh"
+    """Interface language: zh or en."""
+
     romaji_enabled: bool = True
     romaji_system: str = "hepburn"
     host: str = DEFAULT_HOST
@@ -61,6 +64,7 @@ class Config:
     epub_dir: str = ""
     show_furigana: bool = True
     current_level: str = "N5"
+    """Current proficiency level for the study language."""
 
     chat_provider: str = "ollama"
     chat_api_key: str = ""
@@ -69,7 +73,41 @@ class Config:
     def get_epub_dir(self) -> Path:
         if self.epub_dir:
             return Path(self.epub_dir)
-        return DEFAULT_LANG_DIR
+        EPUB_DIR.mkdir(parents=True, exist_ok=True)
+        return EPUB_DIR
+
+    def get_language_epub_dir(self, language: str = "") -> Path:
+        """Return the default EPUB directory for a study language.
+
+        Layout: <XUEHUA_DIR>/epub/<language>/. Falls back to the shared
+        epub root when the language-specific subdir does not exist yet.
+        """
+        if self.epub_dir:
+            return Path(self.epub_dir)
+        lang = language or self.language
+        if lang:
+            lang_dir = EPUB_DIR / lang
+            if lang_dir.exists():
+                return lang_dir
+            lang_dir.mkdir(parents=True, exist_ok=True)
+            return lang_dir
+        EPUB_DIR.mkdir(parents=True, exist_ok=True)
+        return EPUB_DIR
+
+    def normalize_level(self, language: str = "") -> str:
+        """Return a valid level for the given study language.
+
+        If current_level is not in the language's level set, returns the
+        language default level. Empty levels return ''.
+        """
+        from .languages import get_levels, default_level
+        lang = language or self.language
+        levels = get_levels(lang)
+        if not levels:
+            return ""
+        if self.current_level in levels:
+            return self.current_level
+        return default_level(lang)
 
 
 def load_config() -> Config:

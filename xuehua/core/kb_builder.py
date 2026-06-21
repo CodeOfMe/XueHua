@@ -89,7 +89,33 @@ class EPUBParser:
         return sections
 
     def _html_to_text(self, html_content: str) -> str:
-        """Convert HTML to plain text, preserving structure."""
+        """Convert HTML to plain text using BeautifulSoup."""
+        try:
+            from bs4 import BeautifulSoup
+        except ImportError:
+            return self._html_to_text_regex(html_content)
+
+        soup = BeautifulSoup(html_content, "lxml")
+
+        # Handle ruby annotations: <ruby>漢字<rt>かんじ</rt></ruby> → 漢字（かんじ）
+        for ruby in soup.find_all("ruby"):
+            rb = ruby.find("rb")
+            rt = ruby.find("rt")
+            if rb and rt:
+                ruby.replace_with(f"{rb.get_text()}（{rt.get_text()}）")
+            elif rt:
+                ruby.replace_with(rt.get_text())
+
+        text = soup.get_text(separator="\n")
+
+        # Normalize whitespace
+        text = re.sub(r"\n{3,}", "\n\n", text)
+        text = re.sub(r"[ \t]+", " ", text)
+
+        return text.strip()
+
+    def _html_to_text_regex(self, html_content: str) -> str:
+        """Fallback: convert HTML to plain text using regex."""
         text = html_content
 
         text = re.sub(r"<br\s*/?>", "\n", text, flags=re.IGNORECASE)

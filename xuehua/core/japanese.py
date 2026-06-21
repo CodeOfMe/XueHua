@@ -224,38 +224,44 @@ def kana_to_romaji(kana: str, system: str = "hepburn") -> str:
     kana : str
         Hiragana or katakana string.
     system : str
-        Romanization system: "hepburn" (default), "nippon", "passport".
+        Romanization system: "hepburn" (default). Other systems fall back
+        to a manual mapping that approximates Hepburn.
     """
-    if _JACONV_AVAILABLE:
+    # Prefer jaconv's built-in romanization (Hepburn only)
+    if _JACONV_AVAILABLE and system == "hepburn":
         try:
-            hiragana = jaconv.kata2hira(kana)
-            result = []
-            i = 0
-            while i < len(hiragana):
-                if i + 1 < len(hiragana):
-                    digraph = hiragana[i:i+2]
-                    if digraph in _ROMAJI_MAP_H:
-                        result.append(_ROMAJI_MAP_H[digraph])
-                        i += 2
-                        continue
-                char = hiragana[i]
-                if char in _ROMAJI_MAP_H:
-                    result.append(_ROMAJI_MAP_H[char])
-                elif char == "っ":
-                    if i + 1 < len(hiragana) and hiragana[i+1] in _ROMAJI_MAP_H:
-                        result.append(_ROMAJI_MAP_H[hiragana[i+1]][0])
-                    i += 1
-                    continue
-                elif char == "ー":
-                    result.append("-")
-                else:
-                    result.append(char)
-                i += 1
-            return "".join(result)
+            return jaconv.kana2alphabet(kana)
         except Exception:
             pass
 
-    return kana
+    # Manual fallback for when jaconv is unavailable or non-Hepburn requested
+    try:
+        hiragana = jaconv.kata2hira(kana) if _JACONV_AVAILABLE else kana
+        result = []
+        i = 0
+        while i < len(hiragana):
+            if i + 1 < len(hiragana):
+                digraph = hiragana[i:i+2]
+                if digraph in _ROMAJI_MAP_H:
+                    result.append(_ROMAJI_MAP_H[digraph])
+                    i += 2
+                    continue
+            char = hiragana[i]
+            if char in _ROMAJI_MAP_H:
+                result.append(_ROMAJI_MAP_H[char])
+            elif char == "っ":
+                if i + 1 < len(hiragana) and hiragana[i+1] in _ROMAJI_MAP_H:
+                    result.append(_ROMAJI_MAP_H[hiragana[i+1]][0])
+                i += 1
+                continue
+            elif char == "ー":
+                result.append("-")
+            else:
+                result.append(char)
+            i += 1
+        return "".join(result)
+    except Exception:
+        return kana
 
 
 def annotate_text(text: str, show_furigana: bool = True, show_romaji: bool = False,
